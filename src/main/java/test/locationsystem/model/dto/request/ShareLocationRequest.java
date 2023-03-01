@@ -1,4 +1,4 @@
-package test.locationsystem.model.dto;
+package test.locationsystem.model.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -7,11 +7,8 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SharedLocationDto {
-    Long id;
-    UserDto receiver;
-    LocationDto locationDto;
-
+public class ShareLocationRequest {
+    Long receiverId;
+    Long LocationId;
 }
