@@ -22,5 +22,8 @@ public class SharedLocation {
     @ManyToOne
             @JoinColumn(name = "receiver_id")
     User receiver;
+    @ManyToOne
+            @JoinColumn(name = "location_id")
+    Location location;
 
 }
