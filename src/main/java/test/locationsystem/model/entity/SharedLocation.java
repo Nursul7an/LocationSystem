@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import test.locationsystem.model.enums.Accessible;
 
 import javax.persistence.*;
 
@@ -25,5 +26,7 @@ public class SharedLocation {
     @ManyToOne
             @JoinColumn(name = "location_id")
     Location location;
+    @Enumerated(EnumType.STRING)
+    Accessible accessible;
 
 }

@@ -9,8 +9,7 @@ import test.locationsystem.model.enums.Accessible;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ShareLocationRequest {
-    Long receiverId;
-    Long LocationId;
+public class AccessRequest {
+    Long sharedLocationId;
     Accessible accessible;
 }

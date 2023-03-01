@@ -22,6 +22,7 @@ public class Location {
     String city;
     String state;
     String country;
+
     @ManyToOne
             @JoinColumn(name = "owner_id")
     User owner;
