@@ -30,7 +30,7 @@ public class LocationController {
                                                            Authentication authentication){
         return ResponseEntity.ok(locationService.share(request, authentication));
     }
-    @GetMapping("get/users")
+    @GetMapping("/get/users")
     public ResponseEntity<List<UserDto>> getUserByLocation(@RequestParam String value){
         return ResponseEntity.ok(locationService.getUserByLocation(value));
     }
