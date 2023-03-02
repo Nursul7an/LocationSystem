@@ -2,12 +2,14 @@ package test.locationsystem.service.impls;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import test.locationsystem.exception.NotFoundException;
 import test.locationsystem.mapper.LocationMapper;
 import test.locationsystem.mapper.SharedLocationMapper;
 import test.locationsystem.mapper.UserMapper;
 import test.locationsystem.model.dto.LocationDto;
 import test.locationsystem.model.dto.SharedLocationDto;
 import test.locationsystem.model.dto.UserDto;
+import test.locationsystem.model.dto.request.AccessRequest;
 import test.locationsystem.model.dto.request.LocationRequest;
 import test.locationsystem.model.dto.request.ShareLocationRequest;
 import test.locationsystem.model.entity.Location;
@@ -64,6 +66,26 @@ public class LocationServiceImpl implements LocationService {
             userList.add(obj.getOwner());
         }
         return userList.stream().map(userMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public void changeAccess(AccessRequest accessRequest) {
+        SharedLocation sharedLocation = sharedLocationRepo.findById(accessRequest.getSharedLocationId())
+                .orElseThrow(()-> new NotFoundException("No such shared location found"));
+        sharedLocation.setAccessible(accessRequest.getAccessible());
+        sharedLocationRepo.save(sharedLocation);
+    }
+
+    @Override
+    public List<LocationDto> getAllLocation(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        List<Location> locationList = locationRepo.findAllByOwner(user);
+        List<SharedLocation> sharedLocations = sharedLocationRepo.findAllByReceiver(user);
+
+        for (SharedLocation sharedLocation : sharedLocations){
+            locationList.add(sharedLocation.getLocation());
+        }
+        return locationList.stream().map(locationMapper::toDto).collect(Collectors.toList());
     }
 
 }

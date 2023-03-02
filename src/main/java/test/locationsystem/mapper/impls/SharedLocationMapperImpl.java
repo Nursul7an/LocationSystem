@@ -30,6 +30,7 @@ public class SharedLocationMapperImpl implements SharedLocationMapper {
         SharedLocation sharedLocation = new SharedLocation();
         sharedLocation.setReceiver(userRepo.getById(request.getLocationId()));
         sharedLocation.setLocation(locationRepo.getById(request.getLocationId()));
+        sharedLocation.setAccessible(request.getAccessible());
         return sharedLocation;
     }
 
@@ -39,6 +40,7 @@ public class SharedLocationMapperImpl implements SharedLocationMapper {
         sharedLocationDto.setId(savedUser.getId());
         sharedLocationDto.setLocationDto(locationMapper.toDto(savedUser.getLocation()));
         sharedLocationDto.setReceiver(userMapper.toDto(savedUser.getReceiver()));
+        sharedLocationDto.setAccessible(savedUser.getAccessible());
         return sharedLocationDto;
     }
 }
