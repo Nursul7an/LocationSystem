@@ -9,7 +9,6 @@ import test.locationsystem.model.entity.SharedLocation;
 
 
 public interface SharedLocationMapper {
-
     SharedLocation toSharedLocation(ShareLocationRequest request);
 
     SharedLocationDto toDto(SharedLocation savedUser);

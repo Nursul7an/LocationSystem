@@ -1,8 +1,6 @@
 package test.locationsystem.model.entity;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
@@ -12,6 +10,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "locations")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Location {
     @Id
             @GeneratedValue(strategy = GenerationType.IDENTITY)
