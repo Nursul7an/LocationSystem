@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class LocationServiceImpl implements LocationService {
-    private final LocationMapper locationMapper;
+    public   LocationMapper locationMapper;
     private final LocationRepo locationRepo;
     private final SharedLocationMapper sharedLocationMapper;
     private final SharedLocationRepo sharedLocationRepo;
-    private final UserMapper userMapper;
+    public  UserMapper userMapper;
 
     public LocationServiceImpl(LocationRepo locationRepo, SharedLocationMapper sharedLocationMapper, SharedLocationRepo sharedLocationRepo) {
         this.locationRepo = locationRepo;
@@ -74,6 +74,7 @@ public class LocationServiceImpl implements LocationService {
                 .orElseThrow(()-> new NotFoundException("No such shared location found"));
         sharedLocation.setAccessible(accessRequest.getAccessible());
         sharedLocationRepo.save(sharedLocation);
+
     }
 
     @Override

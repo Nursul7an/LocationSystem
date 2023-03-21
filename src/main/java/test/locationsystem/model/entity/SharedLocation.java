@@ -1,8 +1,6 @@
 package test.locationsystem.model.entity;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import test.locationsystem.model.enums.Accessible;
 
@@ -13,6 +11,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "shared_locations")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@NoArgsConstructor
 public class SharedLocation {
     @Id
             @GeneratedValue(strategy = GenerationType.IDENTITY)

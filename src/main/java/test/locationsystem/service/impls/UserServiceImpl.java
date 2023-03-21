@@ -2,6 +2,7 @@ package test.locationsystem.service.impls;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import test.locationsystem.exception.InvalidEmailException;
 import test.locationsystem.mapper.UserMapper;
 import test.locationsystem.model.dto.UserDto;
 import test.locationsystem.model.dto.request.UserRegisterRequest;
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
-    public final UserMapper userMapper;
+    public  UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepo userRepo, PasswordEncoder passwordEncoder) {
@@ -26,7 +27,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto registerUser(UserRegisterRequest request) {
         if (!validateEmail(request.getEmail()))
-            throw new RuntimeException("Invalid email address or email already exist");
+            throw new InvalidEmailException("Invalid email address or email already exist");
 
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         User user = userMapper.toUser(request);
@@ -34,9 +35,9 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(savedUser);
     }
 
-    private boolean validateEmail(String email){
+    public boolean validateEmail(String email){
         if (userRepo.existsUserByEmail(email))
-            throw new RuntimeException("The user already exist with email "+ email );
+            throw new InvalidEmailException("The user already exist with email "+ email );
 
         return Pattern.compile("^(.+)@(.+)$")
                 .matcher(email)
