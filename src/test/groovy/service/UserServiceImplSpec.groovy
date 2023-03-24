@@ -23,11 +23,9 @@ class UserServiceImplSpec extends Specification {
     def "Register new user"() {
         given:
         def email = "nick@gmail.com"
-        def password = "password123"
-        def encodedPassword = "encoded"
+        def password = "123"
         def request = new UserRegisterRequest(email: email, password: password)
 
-        passwordEncoder.encode(password) >> encodedPassword
         userMapper.toUser(request) >> new User()
         userRepo.save(_) >> new User()
         userMapper.toDto(_) >> new UserDto(id: 1L, email: email)

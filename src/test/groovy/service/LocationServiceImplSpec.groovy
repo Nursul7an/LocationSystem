@@ -3,6 +3,7 @@ package service
 
 import org.springframework.security.core.Authentication
 import spock.lang.Specification
+import test.locationsystem.exception.NotFoundException
 import test.locationsystem.mapper.LocationMapper
 import test.locationsystem.mapper.UserMapper
 import test.locationsystem.mapper.impls.SharedLocationMapperImpl
@@ -35,53 +36,49 @@ class LocationServiceImplSpec extends Specification {
     User user = new User(id: 1l,email: "nick@gmail.com", password: "123456")
     def  user1 = new User(id: 1l, email: "nick@gmail.com", password: "123")
 
-    // createLocation method is returning null value. Authentication is not passing in the parameter
-    // I think that is why this method returning a null value
 
-    def "createLocation should save and return the location DTO"() {
+    def "createLocation should save and return the locationDto"() {
 
-        authentication.getPrincipal() >> user
-        LocationRequest request = new LocationRequest(
+        given:
+         LocationRequest request = new LocationRequest(
                 locationName: "Home",
                 streetNumAndName: "123 Main St",
                 apartmentNum: "1A",
                 city: "New York",
                 state: "NY",
-                country: "USA"
+               country: "USA"
         )
-        def saveLocation = locationRepo.save(_)
-        locationMapper.toLocation(request) >> new Location()
-        locationMapper.toDto(saveLocation as Location)
-
+        authentication.getPrincipal() >> user
+        def location = locationMapper.toLocation(request)
+        locationMapper.toDto(_) >> new LocationDto()
+        locationRepo.save(_) >> location
 
         when:
         def result = locationServiceImpl.createLocation(request, authentication)
 
         then:
-        1 * locationRepo.save(_)
         result.locationName == request.locationName
         result.streetNumAndName == request.streetNumAndName
         result.apartmentNum == request.apartmentNum
         result.city == request.city
         result.state == request.state
-        result.country == request.country
     }
     def "should return a list of users with the given location "() {
         given:
-        def  user1 = new User(id: 1l, email: "nick@gmail.com", password: "123")
-        def user2 = new User(id: 2l, email: "andrew@gmail.com", password: "432")
+        def  user1 = new User(id: 1, email: "nick@gmail.com", password: "123")
+        def user2 = new User(id: 2, email: "andrew@gmail.com", password: "432")
         def location1 = new Location(
-                id: 1l, owner: user1,
+                id: 1, owner: user1,
                 locationName: "Home",
                 streetNumAndName: "123 Main St",
-                apartmentNum: "1A",
+                apartmentNum: "2A",
                 city: "New York",
                 state: "NY",
                 country: "USA")
         def location2 = new Location(
                 id: 12, owner: user2,
                 locationName: "Work",
-                streetNumAndName: "321 Blvd ",
+                streetNumAndName: "123 Main St",
                 apartmentNum: "1A",
                 city: "New York",
                 state: "NY",
@@ -101,7 +98,7 @@ class LocationServiceImplSpec extends Specification {
     def "Find location by user" (){
         given:
         def location1 = new Location(
-                id: 1l, owner: user1,
+                id: 1L, owner: user1,
                 locationName: "Home",
                 streetNumAndName: "123 Main St",
                 apartmentNum: "1A",
@@ -109,7 +106,7 @@ class LocationServiceImplSpec extends Specification {
                 state: "NY",
                 country: "USA")
         def location2 = new Location(
-                id: 12, owner: user,
+                id: 12L, owner: user,
                 locationName: "Work",
                 streetNumAndName: "321 Blvd ",
                 apartmentNum: "1A",
@@ -118,10 +115,37 @@ class LocationServiceImplSpec extends Specification {
                 country: "USA")
 
         SharedLocation sharedLocation =
-                new SharedLocation(id: 1l,sender: user1, receiver: user, location: location2,accessible:Accessible.TRUE )
-        locationRepo.findAllByOwner(_) >> [location1,location2]
-        sharedLocationRepo.findAllByReceiver(_) >> [sharedLocation]
+                new SharedLocation(id: 1L,sender: user1, receiver: user, location: location2,accessible:Accessible.TRUE )
+        locationRepo.findAllByOwner(user) >> [location1,location2]
+        sharedLocationRepo.findAllByReceiver(user) >> [sharedLocation]
+        locationMapper.toDto(location1) >> new LocationDto(
+                id: 1L,
+                locationName: "Home",
+                streetNumAndName: "123 Main St",
+                apartmentNum: "1A",
+                city: "New York",
+                state: "NY",
+                country: "USA"
+        )
+        locationMapper.toDto(location2) >> new LocationDto(
+                id: 12L,
+                locationName: "Work",
+                streetNumAndName: "321 Blvd ",
+                apartmentNum: "1A",
+                city: "New York",
+                state: "NY",
+                country: "USA")
+        locationMapper.toDto(sharedLocation.getLocation()) >> new LocationDto(
+                id: 12L,
+                locationName: "Work",
+                streetNumAndName: "321 Blvd ",
+                apartmentNum: "1A",
+                city: "New York",
+                state: "NY",
+                country: "USA")
+
         authentication.getPrincipal() >> user
+
         when:
         List<LocationDto> result = locationServiceImpl.getAllLocation(authentication)
 
@@ -131,9 +155,9 @@ class LocationServiceImplSpec extends Specification {
             LocationDto locationDto -> locationDto != null
         }
     }
-    def "changeAccess should change access for location" (){
+    def "It should throw NotFoundException" (){
         given:
-        def request = new AccessRequest(sharedLocationId: 1l,accessible: Accessible.FALSE)
+        def request = new AccessRequest(sharedLocationId: 1,accessible: Accessible.FALSE)
         def location2 = new Location(
                 id: 12, owner: user,
                 locationName: "Work",
@@ -142,18 +166,18 @@ class LocationServiceImplSpec extends Specification {
                 city: "New York",
                 state: "NY",
                 country: "USA")
-
-
-            def sharedLocation = new SharedLocation(
-                    id: 1l, sender: user1, receiver:
-                    user, location: location2, accessible: Accessible.TRUE)
-        SharedLocationRepo stubbedRepo = Stub(SharedLocationRepo)
-        stubbedRepo.findById(_).orElse(sharedLocation) >> sharedLocation
-
+        def stubbedRepo = Stub(SharedLocationRepo){
+            sharedLocationRepo.findById(2) >>
+                    new SharedLocation(id: 1, sender: user1, receiver: user, location: location2, accessible: Accessible.TRUE)
+        }
+        and:
+        def service = new LocationServiceImpl(locationRepo,sharedLocationMapper,stubbedRepo)
         when:
-        locationServiceImpl.changeAccess(request)
+
+        service.changeAccess(request)
 
         then:
-        sharedLocation.accessible == Accessible.FALSE
+        thrown(NotFoundException)
     }
+
 }

@@ -71,7 +71,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public void changeAccess(AccessRequest accessRequest) {
         SharedLocation sharedLocation = sharedLocationRepo.findById(accessRequest.getSharedLocationId())
-                .orElseThrow(()-> new NotFoundException("No such shared location found"));
+                .orElseThrow(()-> new NotFoundException("No such shared location found with id: "+ accessRequest.getSharedLocationId()));
         sharedLocation.setAccessible(accessRequest.getAccessible());
         sharedLocationRepo.save(sharedLocation);
 
